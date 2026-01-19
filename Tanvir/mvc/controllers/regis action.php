@@ -7,6 +7,7 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
    $isValid = true;
    
+   
         $firstname = sanitize($_POST['fname']);
         $lastname = sanitize($_POST['lname']);
         $username = sanitize($_POST['username']);

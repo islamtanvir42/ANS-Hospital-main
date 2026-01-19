@@ -23,6 +23,7 @@ function showdata() {
 }
 
 
+
 function insert_doctor($fullname, $email, $phoneno, $password, $gender) {
     global $data;
 

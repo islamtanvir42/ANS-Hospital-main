@@ -61,6 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         unset($_SESSION['empty_password']);
     }
 
+    
     if (strlen($password) < 4) {
         $_SESSION['Invalid_password_length'] = "Password length should be at least 4 characters";
         $isValid = false;

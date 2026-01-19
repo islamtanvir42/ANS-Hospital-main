@@ -9,11 +9,14 @@ if (!isset($_SESSION['LoggedIn'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Fetch user data
+    
+
+// Fetch user data
     $userData = update($_SESSION['user']);
     
     if ($userData) {
-        // Extract user data
+        
+    // Extract user data
         $doctor_ID = $userData['doctorID'];
         $fullName = $userData['fullname'];
         $email = $userData['email'];
@@ -48,6 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
      unset($_SESSION['empty_error_fullname']);                                
  }
 
+ 
 
  if (empty($email)) {
   $_SESSION['empty_email'] = "please fill up email";

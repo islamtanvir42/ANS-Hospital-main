@@ -4,6 +4,8 @@ $password="";
 $fullname="root";
 $databasename="mydata";
 
+
+
 $data = new mysqli($server, $fullname, $password, $databasename);
 
 if ($data->connect_error) {

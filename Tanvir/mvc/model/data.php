@@ -3,6 +3,7 @@ include'database_connection.php';
 //session_start();
 
 
+
 function login($phone, $password){
     global $data; // Change $conn to $data
     $sql = "SELECT * FROM `doctor` WHERE `mobile`=? AND `password`=?";
@@ -25,6 +26,7 @@ function login($phone, $password){
 }
 
 
+
 function Registration($fullname, $password,$email, $phoneno,$gender) {
     global $conn;    
  $stmt = $conn->prepare("INSERT INTO `doctor`( `full_name`, `password`,  `email`, `mobile`,`gender`) VALUES (?,?,?,?,?)");
@@ -44,6 +46,7 @@ function Registration($fullname, $password,$email, $phoneno,$gender) {
      return false;
  }
 }
+
 
 
 function change_password($mobile,$newpassword){

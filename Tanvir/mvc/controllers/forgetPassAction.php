@@ -1,24 +1,23 @@
-
-
 <?php
+session_start();
+require '../model/data.php';
 
-require '../model/data.php'; 
-
-if ($_SERVER['REQUEST_METHOD'] === "POST") {
-    if(isset($_POST['email']) && !empty($_POST['email'])) {
-        $email = $_POST['email'];
-        echo "Email : " . $email; // Debugging statement to check if email is received
-
-        echo"<br>";
-        $doctorPassword = getDoctorPassword($email);
-
-        if ($doctorPassword !== null) {
-            echo "Doctor's password: " . $doctorPassword;
-        } else {
-            echo "Doctor password not found!";
-        }
-    } else {
-        echo "Email is not set or empty!";
-    }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../views/forgetPass.php');
+    exit();
 }
-?>
+
+// A password must never be shown on a page. Passwords are now stored as hashes
+// and cannot be read back at all. Without an email service, recovery is a
+// request to an administrator, and the answer is the same whether or not the
+// email is registered so the form cannot be used to find out who has an account.
+$email = trim($_POST['email'] ?? '');
+
+if ($email === '') {
+    flash_set('forgot_message', ['error', 'Please enter your email.']);
+} else {
+    flash_set('forgot_message', ['ok', 'If that email is registered, contact the administrator to have the password reset.']);
+}
+
+header('Location: ../views/forgetPass.php');
+exit();

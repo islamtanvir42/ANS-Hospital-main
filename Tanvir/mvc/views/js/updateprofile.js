@@ -1,19 +1,12 @@
 function upvalidate(){
+    const name = document.getElementById("fullname");
+    const email = document.getElementById("email");
+    const gender = document.getElementById("gender");
+    const mobile = document.getElementById("mobile");
 
-    const ab=document.getElementById("doctor_ID");
-    const ac=document.getElementById("fullname");
-    const ad=document.getElementById("email");
-    const ae=document.getElementById("gender");
-    const af=document.getElementById("password");
-    if(ab.value ===""|| ac.value ==="" ||ad.value ==="" || ae.value === "" || af.value === ""){
-    window.alert("please fill up the form properly!")
-    
-    }
-    else{
-        return true;
-    }
-    
-    
-    
+    if (name.value === "" || email.value === "" || gender.value === "" || mobile.value === "") {
+        window.alert("please fill up the form properly!");
         return false;
     }
+    return true;
+}

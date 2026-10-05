@@ -1,10 +1,7 @@
 <?php
 session_start();
-
-if (!isset($_SESSION['logged'])) {
-    header("Location: login.php");
-    exit();
-}
+require_once '../model/helpers.php';
+require_login();
 ?>
 
 
@@ -38,7 +35,7 @@ if (!isset($_SESSION['logged'])) {
                                 <td><a href="../views/changepassword.php">Change Password</a></td><td></td><td><td></td></td>
                                 <td><a href="../controllers/logout.php">Logout</a></td>
                                 <td><p>Welcome <?php if(isset($_SESSION['user'])){
-                                    echo  $_SESSION['user'] ;
+                                    echo e($_SESSION['user']);
                                    
                                 };?></p></td>
                             </tr>
@@ -59,10 +56,10 @@ if (!isset($_SESSION['logged'])) {
                 </form>
                 <br>
                 <form action="../views/fee & followup.php" method="get">
-                    <button style="background-color: rgb(74 222 128);" type="submit">Set Fee and Folloeup</button><br><br>
+                    <button style="background-color: rgb(74 222 128);" type="submit">Set Fee and Followup</button><br><br>
                 </form>
                 <br>
-                <form action="../views/paitent_Record.php" method="get">
+                <form action="../views/paitent_record.php" method="get">
                     <button style="background-color: rgb(74 222 128);" type="submit">Plans</button><br><br>
                 </form>
                 <br><br>

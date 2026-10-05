@@ -1,32 +1,12 @@
 <?php
 session_start();
-
 require '../model/data.php';
+require_login();
 
-if (!isset($_SESSION['LoggedIn'])) {
-    header("Location: login.php");
-    exit();
-}
-
-// Fetch user data
 $userData = profile($_SESSION['user']);
-
-// Initialize variables
-
-
-if ($userData) {
-    // Extract user data
-    $doctor_ID = $userData['doctorID'];
-    $fullName = $userData['fullname'];
-    $email = $userData['email'];
-    $mobile = $userData['mobile'];
-    $password = $userData['password'];
-    $gender = $userData['gender'];
-}
-
-
+$errors = flash_get('profile_errors') ?? [];
+$gender = strtolower($userData['gender'] ?? '');
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -35,48 +15,56 @@ if ($userData) {
     <title>update profile </title>
     <script type="text/javascript" src="js/updateprofile.js"></script>
 </head>
+
 <body>
     <center>
         <h3>Profile</h3>
+        <?php foreach ($errors as $message): ?>
+            <p style="color: crimson;"><?php echo e($message); ?></p>
+        <?php endforeach; ?>
         <table>
             <tr>
                 <td>
                     <fieldset>
                         <legend>Profile :</legend>
-                        <form novalidate method="POST" onsubmit="return upvalidate();">
+                        <form novalidate method="POST" action="../controllers/updateprofileaction.php" onsubmit="return upvalidate();">
                             <table>
                                 <tr>
                                     <td><b><label for="doctor_ID">Doctor ID </label></b></td>
-                                    <td>: <input id="doctor_ID" name="doctor_ID" type="text" value="<?php echo $doctor_ID ?? ''; ?>"></td>
+                                    <td>: <input readonly id="doctor_ID" type="text" value="<?php echo e($userData['doctorID'] ?? ''); ?>"></td>
                                 </tr>
                                 <tr><td><br></td></tr>
                                 <tr>
                                     <td><b><label for="fullname">Full Name </label></b></td>
-                                    <td>: <input  id="fullname" name="fullname" type="text" value="<?php echo $fullName ?? ''; ?>"></td>
+                                    <td>: <input id="fullname" name="fullname" type="text" value="<?php echo e($userData['fullname'] ?? ''); ?>"></td>
                                 </tr>
                                 <tr><td><br></td></tr>
                                 <tr>
                                     <td><b><label for="email">Email</label></b></td>
-                                    <td>: <input  id="email" name="email" type="text" value="<?php echo $email ?? ''; ?>"></td>
+                                    <td>: <input id="email" name="email" type="text" value="<?php echo e($userData['email'] ?? ''); ?>"></td>
                                 </tr>
                                 <tr><td><br></td></tr>
                                 <tr>
                                     <td><b><label for="gender">Gender </label></b></td>
-                                    <td>: <input  id="gender" name="gender" type="text" value="<?php echo $gender ?? ''; ?>"></td>
-                                </tr>
-                                <tr><td><br></td></tr>
-                                <tr>
-                                    <td><b><label for="password">Password</label></b></td>
-                                    <td>: <input  id="password" name="password" type="text" value="<?php echo $password ?? ''; ?>"></td>
+                                    <td>:
+                                        <select id="gender" name="gender">
+                                            <option value="male" <?php echo $gender === 'male' ? 'selected' : ''; ?>>Male</option>
+                                            <option value="female" <?php echo $gender === 'female' ? 'selected' : ''; ?>>Female</option>
+                                        </select>
+                                    </td>
                                 </tr>
                                 <tr><td><br></td></tr>
                                 <tr>
                                     <td><b><label for="mobile">Phone no</label></b></td>
-                                    <td>: <input id="mobile" name="mobile" type="text" value="<?php echo $mobile ?? ''; ?>"></td>
+                                    <td>: <input id="mobile" name="mobile" type="text" value="<?php echo e($userData['mobile'] ?? ''); ?>"></td>
                                 </tr>
                                 <tr>
                                     <td></td>
-                                    <td><button formaction="../views/updateprofile.php" name="update">Update</button></td>
+                                    <td><button type="submit" name="update">Save</button></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><a href="../views/profile.php">Cancel</a> &middot; <a href="../views/changepassword.php">Change password</a></td>
                                 </tr>
                             </table>
                         </form>
@@ -87,4 +75,3 @@ if ($userData) {
     </center>
 </body>
 </html>
-

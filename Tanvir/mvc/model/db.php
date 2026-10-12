@@ -1,77 +1,37 @@
 <?php
-include("database_connection.php"); // Include the database connection file
-function showdata() {
-    global $data; // Assuming $data is your database connection object
+require_once __DIR__ . '/data.php';
 
-    $sql = "SELECT `doctorID`, `fullname`, `email`, `mobile`, `password`, `gender` FROM `doctor` "; 
-
-    $result = $data->query($sql);
-
-    if ($result->num_rows > 0) {
-        echo "<table><tr><th>ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Password</th><th>Gender</th></tr>";
-        while($row = $result->fetch_assoc()) {
-            echo "<tr>";
-            foreach ($row as $value) {
-                echo "<td>".$value."</td>";
-            }
-            echo "</tr>";
-        }
-        echo "</table>";
-    } else {
-        echo "0 results";
-    }
-}
-
-
-
-function insert_doctor($fullname, $email, $phoneno, $password, $gender) {
+/**
+ * Create a doctor account. The password is stored as a hash.
+ * Returns 'ok', 'duplicate' (mobile or email already registered),
+ * 'needs_migration' (password column too short for a hash) or 'error'.
+ */
+function insert_doctor($fullname, $email, $phoneno, $password, $gender): string
+{
     global $data;
 
-    // Prepare and bind statement
-    $stmt = $data->prepare("INSERT INTO doctor (fullname, email, mobile,password, gender) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $fullname, $email, $phoneno, $password, $gender);
+    $check = $data->prepare('SELECT 1 FROM `doctor` WHERE `mobile` = ? OR `email` = ? LIMIT 1');
+    if ($check) {
+        $check->bind_param('ss', $phoneno, $email);
+        $check->execute();
+        $exists = $check->get_result()->num_rows > 0;
+        $check->close();
+        if ($exists) {
+            return 'duplicate';
+        }
+    }
 
-    // Execute statement
-    $result = $stmt->execute();
+    $hash = hash_for_storage((string) $password);
+    if ($hash === null) {
+        return 'needs_migration';
+    }
 
-    // Close statement
+    $stmt = $data->prepare('INSERT INTO `doctor` (`fullname`, `email`, `mobile`, `password`, `gender`) VALUES (?, ?, ?, ?, ?)');
+    if (!$stmt) {
+        return 'error';
+    }
+    $stmt->bind_param('sssss', $fullname, $email, $phoneno, $hash, $gender);
+    $ok = $stmt->execute();
     $stmt->close();
-
-    return $result;
-
+    return $ok ? 'ok' : 'error';
 }
-
-function login($phoneno, $password) {
-    global $data;
-
-    // Prepare and execute the SQL query
-    $stmt = $data->prepare("SELECT * FROM doctor WHERE phoneno=?");
-    $stmt->bind_param("s", $phoneno);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if (!$result) {
-        // Error handling for query execution
-        echo "Error: " . $data->error;
-        return false;
-    }
-
-    if ($result->num_rows == 1) {
-        // Fetch the user data
-        $row = $result->fetch_assoc();
-        // Verify the password
-        if (password_verify($password, $row['password'])) {
-            return true; // Password matches
-        } else {
-            return false; // Password does not match
-        }
-    } else {
-        return false; // No user found with the provided phone number
-    }
-}
-
-
-
-
-
-?>

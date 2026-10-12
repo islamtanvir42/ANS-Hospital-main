@@ -1,16 +1,10 @@
 function changevalidate(){
+    const current = document.getElementById("currentpassword");
+    const next = document.getElementById("newpassword");
 
-    const aa=document.getElementById("phoneno");
-    const bb=document.getElementById("newpassword");
-
-
-    if(aa.value === "" && bb.value ===""){
-        window.alert("please fill up the form properly!")
-
+    if (current.value === "" || next.value === "") {
+        window.alert("please fill up the form properly!");
+        return false;
     }
-    else{
-        return true;
-    }
-
-    return false;
+    return true;
 }

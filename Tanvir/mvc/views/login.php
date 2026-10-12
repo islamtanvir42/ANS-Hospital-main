@@ -1,9 +1,10 @@
 <?php
 session_start();
-
-
+require_once '../model/helpers.php';
+$error = $_SESSION['error_login'] ?? null;
+unset($_SESSION['error_login']);
+$notice = flash_get('login_notice');
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,84 +12,46 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>login form</title>
     <style>
-            body{
-                background-image: url('login.jpg');
-            }
-
+        body{
+            background-image: url('login.jpg');
+        }
     </style>
     <script type="text/javascript" src="js/login.js"></script>
 </head>
-<body style=" background-color: rgb(6 182 212);" >
-<div  >
-  <center>
 
-  <br><br>
-
-            <table>
-                 
-            <tr>
-
-               <td>
-
-
-               <fieldset>
+<body style=" background-color: rgb(6 182 212);">
+    <div>
         <center>
+            <br><br>
             <table>
-             <td>
-              <tr>
-     <form action="../controllers/login acton.php" method="post" novalidate onsubmit="return validate();">
+                <tr>
+                    <td>
+                        <fieldset>
+                            <center>
+                                <form action="../controllers/login acton.php" method="post" novalidate onsubmit="return validate();">
+                                    <label style="color: orange;" for="phoneno">Phone No.:</label><br>
+                                    <input type="text" id="phoneno" name="phoneno" autocomplete="username"><br>
 
+                                    <label style="color: orange;" for="password">Password:</label><br>
+                                    <input type="password" id="password" name="password" autocomplete="current-password"><br>
 
-          <label style="color: orange;" for="phoneno">Phone No.:</label><br>
-        <input type="text" id="phoneno" name="phoneno"><br>
+                                    <h4 style="color: aqua;">
+                                        <?php if ($notice): ?><span><?php echo e($notice); ?></span><br><?php endif; ?>
+                                        <?php if ($error): ?><span><?php echo e($error); ?></span><br><?php endif; ?>
+                                    </h4>
 
+                                    <input style="background-color: coral; color: white;" type="submit" value="Login">
 
-
-        <label style="color: orange;" for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br>
-        
-        <h4 style="color: aqua;" >
-
-
-
-        <?php
-                 if(isset($_SESSION['error_login'])){
-                    echo "<span >". $_SESSION['error_login'] . "</span><br>";
-                                   
-                     }
-                                ?>
-
-
-
-
-        </h4>
-       
-
-
-
-        <input style="background-color: coral ; color: white;"  type="submit"  value="Login"  ></button> 
-        <p style="color:red ;">Do You Have Any Account</p>
-        <a style="color: bisque;" href="../views/registration.php">Registration</a> <br>
-        <a style="color: bisque;" class="" href="../views/forgetPass.php">Forget password</a><br>
-
-
-
-
-       
-                        </form>
-                    </tr>
-                </td>
+                                    <p style="color:red;">Do You Have Any Account</p>
+                                    <a style="color: bisque;" href="../views/registration.php">Registration</a> <br>
+                                    <a style="color: bisque;" href="../views/forgetPass.php">Forget password</a><br>
+                                </form>
+                            </center>
+                        </fieldset>
+                    </td>
+                </tr>
             </table>
         </center>
-    </fieldset>
-
-            </td>
-            </tr>
-
-
-            </table>
-
-            </center>
-</div>
+    </div>
 </body>
 </html>

@@ -1,105 +1,64 @@
 <?php
 session_start();
-
 require '../model/db.php';
 
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $isValid = true;
-
-    function sanitize($res) {
-        $res = htmlspecialchars($res);
-        return $res;
-    }
-
-    $fullname = sanitize($_POST['fullename']);
-    $email = sanitize($_POST['email']);
-    $phoneno = sanitize($_POST['phoneno']);
-    $password = sanitize($_POST['password']);
-    $confirmpassword = sanitize($_POST['confirmpassword']);
-    $gender = isset($_POST['gender']) ? sanitize($_POST['gender']) : '';
-
-    if ($password != $confirmpassword) {
-        $_SESSION['not_match'] = "password & confirmpassword not match";
-        $isValid = false;
-    } else {
-        unset($_SESSION['not_match']);
-    }
-
-    if (empty($fullname)) {
-        $_SESSION['empty_fullname'] = "please fill up fullname";
-        $isValid = false;
-    } else {
-        unset($_SESSION['empty_fullname']);
-    }
-
-    if (empty($email)) {
-        $_SESSION['empty_email'] = "please fill up email";
-        $isValid = false;
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $_SESSION['invalid_email'] = "Invalid email format";
-        $isValid = false;
-    } else {
-        unset($_SESSION['empty_email']);
-        unset($_SESSION['invalid_email']);
-    }
-
-    if (empty($phoneno)) {
-        $_SESSION['empty_phoneno'] = "please fill up Phone Number";
-        $isValid = false;
-    } elseif (!preg_match('/^\d{11}$/', $phoneno)) {
-        $_SESSION['invalid_phoneno'] = "Please enter a valid 11-digit phone number";
-        $isValid = false;
-    } else {
-        unset($_SESSION['empty_phoneno']);
-    }
-
-    if (empty($password)) {
-        $_SESSION['empty_password'] = "please fill up password";
-        $isValid = false;
-    } else {
-        unset($_SESSION['empty_password']);
-    }
-
-    
-    if (strlen($password) < 4) {
-        $_SESSION['Invalid_password_length'] = "Password length should be at least 4 characters";
-        $isValid = false;
-    } else {
-        unset($_SESSION['Invalid_password_length']);
-    }
-
-    if ( !preg_match('/[0-9]/', $password)) {
-        $_SESSION['Invalid_password'] = "Password must be a combination of letters and numbers";
-        $isValid = false;
-    } else {
-        unset($_SESSION['Invalid_password']);
-    }
-
-    if (empty($confirmpassword)) {
-        $_SESSION['empty_confirmpassword'] = "please fill up confirmpassword";
-        $isValid = false;
-    } else {
-        unset($_SESSION['empty_confirmpassword']);
-        unset($_SESSION['invalid_phoneno']);
-    }
-
-    if (empty($gender)) {
-        $_SESSION['empty_gender'] = "Please select your gender";
-        $isValid = false;
-    } else {
-        unset($_SESSION['empty_gender']);
-    }
-
-    if ($isValid) {
-        $isValid=insert_doctor($fullname, $email, $phoneno, $password, $gender);
-        header("Location: ../views/login.php");
-        
-    } else {
-        header("Location: ../views/registration.php");
-        
-    }
-} else {
-    echo "Request not valid";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../views/registration.php');
+    exit();
 }
-?>
+
+$fullname = trim($_POST['fullename'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$phoneno = trim($_POST['phoneno'] ?? '');
+$password = $_POST['password'] ?? '';
+$confirmpassword = $_POST['confirmpassword'] ?? '';
+$gender = strtolower(trim($_POST['gender'] ?? ''));
+
+$errors = [];
+
+if ($fullname === '') {
+    $errors[] = 'Please fill up your full name.';
+}
+
+if ($email === '') {
+    $errors[] = 'Please fill up your email.';
+} elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $errors[] = 'Invalid email format.';
+}
+
+if ($phoneno === '') {
+    $errors[] = 'Please fill up your phone number.';
+} elseif (!preg_match('/^\d{11}$/', $phoneno)) {
+    $errors[] = 'Please enter a valid 11-digit phone number.';
+}
+
+$errors = array_merge($errors, password_problems($password));
+
+if ($confirmpassword === '') {
+    $errors[] = 'Please confirm your password.';
+} elseif ($password !== $confirmpassword) {
+    $errors[] = 'Password and confirm password do not match.';
+}
+
+if (!in_array($gender, ['male', 'female'], true)) {
+    $errors[] = 'Please select your gender.';
+}
+
+if (!$errors) {
+    $result = insert_doctor($fullname, $email, $phoneno, $password, $gender);
+    if ($result === 'ok') {
+        flash_set('login_notice', 'Registration complete. Please sign in.');
+        header('Location: ../views/login.php');
+        exit();
+    }
+    $errors[] = [
+        'duplicate' => 'That phone number or email is already registered.',
+        'needs_migration' => 'The database needs one update before passwords can be stored safely. See the README, "Upgrading an existing database".',
+    ][$result] ?? 'Could not create the account. Please try again.';
+}
+
+// Send the problems back to the form, along with what was typed (never the passwords).
+flash_set('reg_errors', $errors);
+flash_set('reg_old', ['fullename' => $fullname, 'email' => $email, 'phoneno' => $phoneno, 'gender' => $gender]);
+header('Location: ../views/registration.php');
+exit();
